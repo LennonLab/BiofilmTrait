@@ -8,12 +8,12 @@ output: pdf_document
 geometry: margin=2.54cm
 ---
 
-Project looking at bifilm production of *Pseudomonas aerugionosa* in soil environment
+A trait based approach to bacterial biofilms in soils using *Pseudomonas aeruginosa* as a model system
 
 ```{r}
 rm(list=ls())
 getwd()
-setwd("/Users/lennonj/GitHub/Biofilms")
+setwd("/Users/lennonj/GitHub/BiofilmTrait")
 ```
 
 ```{r}
@@ -34,7 +34,7 @@ traits <- traits[complete.cases(traits),]
 
 Plot biofilm and lag time
 ```{r}
-png(filename="/Users/lennonj/GitHub/Biofilms/figures/SupplementalFigure1.png",
+png(filename="/Users/lennonj/GitHub/BiofilmTrait/figures/SupplementalFigure1.png",
     width = 1200, height = 1200, res = 96*2)
 
 par(mar = c(5, 6, 4, 2))
@@ -108,6 +108,7 @@ malth.t.test <- t.test(growth$rate ~ growth$Strain)
 ```
 
 No effect of strain on growth rate under laboratory maintenance conditions. 
+Results qualitatively independent of sampling interval. 
 Welch Two-Sample t-test: t = -1.118, df = 2.217, p-value = 0.37
 
 ## FIGURE 1: MULTI-PANEL BIOFILM 
@@ -127,7 +128,7 @@ otoole.t.test <- t.test(otoole$Biofilm ~ otoole$Strain)
 Plot biofilm data
 ```{r}
 # Set-up for printing 
-png(filename="/Users/lennonj/GitHub/Biofilms/figures/Figure1.png",
+png(filename="/Users/lennonj/GitHub/BiofilmTrait/figures/Figure1.png",
     width = 800, height = 1200, res = 96*2)
 
 # Set plotting parameters
@@ -230,7 +231,7 @@ biofsurv.diff <- survdiff(Surv(surv$Days,surv$Event) ~ surv$Group, data = surv)
 
 Plotting
 ```{r}
-png(filename="/Users/lennonj/GitHub/Biofilms/figures/Figure2.png",
+png(filename="/Users/lennonj/GitHub/BiofilmTrait/figures/Figure2.png",
     width = 1200, height = 1200, res = 96*2)
 
 par(mar = c(5, 7, 5, 7))
@@ -289,7 +290,7 @@ NM <- growth[which(growth$Strain == "NM"),]
 OE <- growth[which(growth$Strain == "OE"),]
 
 # Plotting
-png(filename="/Users/lennonj/GitHub/Biofilms/figures/Figure3.png",
+png(filename="/Users/lennonj/GitHub/BiofilmTrait/figures/Figure3.png",
     width = 1200, height = 1200, res = 96*2)
 par(mar = c(7, 7, 5, 7))
 plot(jitter(NM$MPa, factor = 10), NM$Growth, xlim = c(max(growth$MPa + 0.1), 
@@ -306,7 +307,7 @@ points(jitter(OE$MPa, factor = 10), OE$Growth, pch = 22, bg = "grey",
 # Add axis labels
 mtext(expression('Growth Rate (d'^-1*')'), side = 2, outer = TRUE, 
       cex = 1.5, line = -3, adj = 0.5)
-mtext("Water Potential (-MPa)", side = 1, outer = TRUE, cex = 1.5, 
+mtext("Water Potential (MPa)", side = 1, outer = TRUE, cex = 1.5, 
       line = -3, adj = 0.5)
 
 # Add ticks and tick labels
@@ -471,26 +472,26 @@ AIC.table <- AICtab(fit1, fit2, fit3, fit4, fit5, fit6, fit7, fit8, fit9, fit10,
 AIC.names <- attributes(AIC.table)$row.names
 AIC.table <- as.data.frame(do.call(cbind, c(AIC.table)))
 AIC.table$names <- AIC.names
-write.table(AIC.table, "~/GitHub/Biofilms/figures/AIC.table.txt", sep = "\t") 
+write.table(AIC.table, "~/GitHub/BiofilmTrait/figures/AIC.table.txt", sep = "\t") 
 
-# Conclusion from based on AIC is that the following models all perform equally
-# well: fit10, fit 4, fit7, fit16, fit13, and fit11. 
-# However, all of these models contain Wopt. Therefore, we use fit4, which only
+# Conclusion based on AIC is that the following models all perform equally
+# well (i.e., deltaAIC ~ < 2): fit10, fit 4, fit7, fit16, fit13, and fit11. 
+# However, all of these models contain Wopt. Therefore, discuss fit4, which only
 # distinguishes OE and NM based on Wopt. 
 
 NM.opt <- fit4@coef[2]
-OE.opt <- NM.opt + fit4
+OE.opt <- NM.opt + fit4@coef[3]
 ```
 
 # Calcuate niche breadth
 Based on Lennon et al. (2012), we estimate niche breadth (`nb`) using the `b` parameter from the equation above. 
 
 ```{r}
-# Following calculated estimates and error for `Wopt`, optmimum water potential
+# Following calculates estimates and error for `Wopt`, optmimum water potential
 NM.opt <- fit4@coef[2]
-NM.opt.e <- 0.022994 # con't figure out how to extract Std. Error from fit4
+NM.opt.e <- coef(summary(fit4))[2,2] 
 OE.opt <- fit4@coef[3] + fit4@coef[2]
-OE.opt.e <- NM.sig.e + 0.039542
+OE.opt.e <- NM.opt.e + coef(summary(fit4))[3,2] 
 ```
 
 # Plot Data
@@ -498,7 +499,7 @@ OE.opt.e <- NM.sig.e + 0.039542
 OE.resp <- subset(resp[,2:3], resp[,4] == "OE", data = resp)
 NM.resp <- subset(resp[,2:3], resp[,4] == "NM", data = resp)
 
-png(filename="/Users/lennonj/GitHub/Biofilms/figures/Figure4.png",
+png(filename="/Users/lennonj/GitHub/BiofilmTrait/figures/Figure4.png",
     width = 1200, height = 1200, res = 96*2)
 
 plot.new()
@@ -527,7 +528,7 @@ axis(side = 1, lwd.ticks = 2, cex.axis = 1.25, las = 1, mgp = c(3, 1, 0),
 axis(side = 3, labels = F, lwd.ticks = 2, las = 1, cex.axis = 1.25, 
    at = c(0, -1, -2, -3, -4))
 
-mtext('Water Potential (-MPa)', side = 1, outer = TRUE, cex = 1.5, 
+mtext('Water Potential (MPa)', side = 1, outer = TRUE, cex = 1.5, 
       line = -4, adj = 0.5)
 
 mtext(expression(paste('Respiration (', mu ,'gC-CO'[2]* ' g soil'^-1* 'd'^-1*')')), 
@@ -538,15 +539,11 @@ legend(-2, 40, c("OE", "NM"), pch = 22, pt.bg = c("grey", "white"), pt.cex = 2,
 
 # Add functions to plot
 
-# First curve is for NM strain
-# curve(coef(fit10)[[1]]*exp(-((abs(coef(fit10)[[2]]+x)/coef(fit10)[[4]]))^coef(fit10)[[6]]), 
-#       from = 0.2, to = -3.3, add = TRUE, lty = 6, lwd = 2.5) # adds NM
 curve(coef(fit4)[[1]]*exp(-((abs(coef(fit4)[[2]]+x)/coef(fit4)[[4]]))^coef(fit4)[[5]]), 
       from = 0.2, to = -3.3, add = TRUE, lty = 6, lwd = 2.5) # adds NM
 
 # For second curve, need to modify to get OE strain parameters
-# OEx=coef(fit10)[2]+coef(fit10)[3] # modifies optimum parameter relative to NM
-#OEb=coef(fit10)[4]+coef(fit10)[5] # modified breadth parameter relative to NM
+
 OEx=coef(fit4)[2]+coef(fit4)[3] # modifies optimum parameter relative to NM
 
 curve(coef(fit10)[[1]]*exp(-((abs(OEx+x)/coef(fit4)[[4]])^coef(fit4)[[5]])), 
@@ -555,13 +552,6 @@ curve(coef(fit10)[[1]]*exp(-((abs(OEx+x)/coef(fit4)[[4]])^coef(fit4)[[5]])),
 dev.off()
 graphics.off()
 ```
-
-
-fit2 <- mle2(R ~ dnorm(mean = a * exp(-((abs(W + x))/b)^t), sd = z),
-             method = "L-BFGS-B", lower = c(x = 0.0000, b = 0.001), 
-             start = list(a = A, x = X, b = B, t = T, z = Z), data = resp) 
-             # common parameter set for both strains
-
 
 ## FIGURE 5: REWETTING COLUMN EXPERIMENT
 
@@ -583,7 +573,7 @@ colnames(NM.cols)[1:3] <- c("day", "NM.mean", "NM.sem")
 
 # Make main plot
 ```{r}
-png(filename="/Users/lennonj/GitHub/Biofilms/figures/Figure5.png",
+png(filename="/Users/lennonj/GitHub/BiofilmTrait/figures/Figure5.png",
     width = 1200, height = 800, res = 96*2)
 
 plot.new()
@@ -626,7 +616,7 @@ axis(side = 1, lwd.ticks = 2, cex.axis = 1.25, las = 1, mgp = c(3, 2, 0),
 axis(side = 3, labels = F, lwd.ticks = 2, las = 1, cex.axis = 1.25, 
    at = c(0, 25, 50, 75, 100))
 
-mtext('Water Potential (-MPa)', side = 2, outer = TRUE, cex = 1.5, 
+mtext('Water Potential (MPa)', side = 2, outer = TRUE, cex = 1.5, 
       line = -2, adj = 0.6)
 
 mtext('Time (d)', side = 1, outer = TRUE, cex = 1.5, 
@@ -640,7 +630,7 @@ dev.off()
 graphics.off()
 ```
 
-# Test whether Pseduomonas densities are different at end of experiment
+# Test whether *Pseduomonas* densities are different at end of experiment
 ```{r}
 # Load data
 cols.cfu <- read.csv("./data/Biofilm_Columns_CFU.csv", head = TRUE, sep =",")
@@ -723,7 +713,7 @@ with.NM <- KBS0701[which(KBS0701$Culture == "cocult_NM"),]
 with.OE <- KBS0701[which(KBS0701$Culture == "cocult_OE"),]
 
 # Main plot
-png(filename="/Users/lennonj/GitHub/Biofilms/figures/Figure6.png",
+png(filename="/Users/lennonj/GitHub/BiofilmTrait/figures/Figure6.png",
     width = 1200, height = 1200, res = 96*2)
 par(mar = c(7, 7, 5, 7))
 plot(jitter(solo$MPa, factor = 3), solo$rate, xlim = c(0.25, -1.85), 
@@ -742,7 +732,7 @@ points(jitter(with.OE$MPa, factor = 3), with.OE$rate, pch = 22, bg = "grey",
 # Add axis labels
 mtext(expression('Growth Rate (d'^-1*')'), side = 2, outer = TRUE, 
       cex = 1.5, line = -3, adj = 0.5)
-mtext("Water Potential (-MPa)", side = 1, outer = TRUE, cex = 1.5, 
+mtext("Water Potential (MPa)", side = 1, outer = TRUE, cex = 1.5, 
       line = -3, adj = 0.5)
 
 # Add ticks and tick labels
@@ -765,17 +755,6 @@ legend(-0.85, 0.07, c("tester", "tester + NM", "tester + OE"), pch = 22,
 
 # Add zero-growth line 
 abline(h = 0, col = "black", lty = 3, lwd = 2)
-
-# # Add multiple regression lines (not printed; instead using "global"
-# parameters because strain parameters are not significant)
-# clip(0.05,-1.6,-0.1,0.05)
-# abline(a = tester.int, b = tester.slp, col = "black", lwd = 2.5, lty = 6)
-# 
-# clip(0.05,-1.4,-3.5,3)
-# abline(a = tester.NM.int, b = tester.NM.slp, col = "red", lwd = 2.5, lty = 4)
-# 
-# clip(0.05,-1.3,-3.5,3)
-# abline(a = tester.OE.int, b = tester.OE.slp, col = "blue", lwd = 2.5, lty = 4)
 
 clip(0.1, -1.75, -0.1, 0.05)
 abline(a = global.int, b = global.slp, col = "black", lwd = 2.5, lty = 6)
