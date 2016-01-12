@@ -13,17 +13,19 @@ A trait based approach to bacterial biofilms in soils using *Pseudomonas aerugin
 ```{r}
 rm(list=ls())
 getwd()
-setwd("/Users/lennonj/GitHub/BiofilmTrait")
+setwd("~/GitHub/BiofilmTrait")
 ```
 
+Load package for writing figures
 ```{r}
 require("png")
 ```
 
-## SUPPLEMENTARY FIGURE 1: BIOFILM-LAG TIME TRADEOFF
+## SUPPL. FIG. 1: BIOFILM VS. LAG
 
 Read in trait data from Lennon et al. (2012)
 ```{r}
+setwd("~/GitHub/BiofilmTrait")
 traits <- read.table("data/Biofilm_Lennon_2012.txt", sep="\t", header=TRUE)
 ```
 
@@ -34,7 +36,7 @@ traits <- traits[complete.cases(traits),]
 
 Plot biofilm and lag time
 ```{r}
-png(filename="/Users/lennonj/GitHub/BiofilmTrait/figures/SupplementalFigure1.png",
+png(filename="~/GitHub/BiofilmTrait/figures/SupplementalFigure1.png",
     width = 1200, height = 1200, res = 96*2)
 
 par(mar = c(5, 6, 4, 2))
@@ -60,8 +62,6 @@ axis(side = 3, lwd.ticks = 2, cex.axis = 1.5, las = 1,
 mtext(expression(~italic(rho)~"= 0.38"), line = -2, cex = 1, at = 70)
 mtext(expression(~italic("P")~"= 0.015"), line = -3, cex = 1, at = 70)
 
-#mtext(expression(paste(rho, "= -0.38"), line = -10, cex = 1, at = 70))
-
 dev.off() # this writes plot to folder
 graphics.off() # shuts down open devices
 ```
@@ -73,17 +73,18 @@ rcorr(traits$lag_time,traits$biofilm, type = "pearson")
 ```
 
 The relationship is only marginally significant (r = -0.27, P = 0.098).
-However, the relationship doens't look linear. 
+However, the relationship doesn't look linear. 
 Use a Spearman rank correlation (non-parametric): r = -0.38, P = 0.0149. 
 
 ```{r}
 rcorr(traits$lag_time,traits$biofilm, type = "spearman")
 ```
 
-## TESTING GROWTH RATES OF 'OE' AND 'NM' UNDER LAB CONDITIONS
+## GROWTH RATES UNDER LAB CONDITIONS
 
 Read OD600 data from cultures to cacluate Malthusian growth rates
 ```{r}
+setwd("~/GitHub/BiofilmTrait")
 malth <- read.csv("data/Biofilm_Malthusian.csv",sep = ",", header=TRUE)
 ```
 
@@ -102,7 +103,8 @@ colnames(data_growth)[6] <- "OD_t38"
 
 Calculate growth rates and conduct t-test
 ```{r}
-rate <- (log(data_growth$OD_t38) - log(data_growth$OD_t0)) / (data_growth$t38-data_growth$t0)
+rate <- (log(data_growth$OD_t38) - log(data_growth$OD_t0)) / 
+        (data_growth$t38-data_growth$t0)
 growth <- cbind(data_growth,rate)
 malth.t.test <- t.test(growth$rate ~ growth$Strain)
 ```
@@ -111,12 +113,13 @@ No effect of strain on growth rate under laboratory maintenance conditions.
 Results qualitatively independent of sampling interval. 
 Welch Two-Sample t-test: t = -1.118, df = 2.217, p-value = 0.37
 
-## FIGURE 1: MULTI-PANEL BIOFILM 
+## FIG. 1: MULTI-PANEL BIOFILM 
 
 Panel A: Comparison of 'NM' and 'OE' with O'Toole assay 
 
 Load data, calculate group means and SEM, run t-test
 ```{r}
+setwd("~/GitHub/BiofilmTrait")
 otoole <- read.csv("data/Biofilm_Otoole.csv", head = TRUE, sep = ",")
 sem <- function(x) sqrt(var(x)/length(x))
 strain <- factor(otoole$Strain, levels = c('non-mucoid', 'mucoid'))
@@ -128,7 +131,7 @@ otoole.t.test <- t.test(otoole$Biofilm ~ otoole$Strain)
 Plot biofilm data
 ```{r}
 # Set-up for printing 
-png(filename="/Users/lennonj/GitHub/BiofilmTrait/figures/Figure1.png",
+png(filename="~/GitHub/BiofilmTrait/figures/Figure1.png",
     width = 800, height = 1200, res = 96*2)
 
 # Set plotting parameters
@@ -137,15 +140,16 @@ layout <- layout(rbind(1, 2, 3), height = c(3, 0.8, 3))
 #layout.show(layout)
 
 # Make inital plot
-otoole.plot <- plot(otoole.means, log = "y", ylim = c(0.05, 2.4), xlim = c(0.5, 2.5), 
-      pch = 22, bg = c("white", "grey"), lwd = 2, cex = 3, yaxt = "n", xaxt = "n", 
-      cex.lab = 2, cex.axis = 1.5, las = 1, ylab = "", xlab = "")
+otoole.plot <- plot(otoole.means, log = "y", ylim = c(0.05, 2.4), 
+      xlim = c(0.5, 2.5), pch = 22, bg = c("white", "grey"), lwd = 2, 
+      cex = 3, yaxt = "n", xaxt = "n", cex.lab = 2, cex.axis = 1.5, 
+      las = 1, ylab = "", xlab = "")
       
       box(lwd = 2)
 
 # Add y-label axis for NM vs. OE plot
-mtext(expression('Biofilm Production (a'[550]*')'), side = 2, outer = TRUE, cex = 1, 
-      line = -4, adj = 0.87)
+mtext(expression('Biofilm Production (a'[550]*')'), side = 2, 
+      outer = TRUE, cex = 1, line = -4, adj = 0.87)
 
 # Add p-value for t-test
 mtext(expression(~italic("P")~"< 0.001"), line = -1.75, cex = 1, at = 0.9)
@@ -172,7 +176,7 @@ axis(side = 4, tck = -0.015, labels = F, lwd.ticks = 2,
        at = c(0.05, 0.1, 0.25, 0.5, 2))
 
 # Load colony images
-
+setwd("~/GitHub/BiofilmTrait")
 NM.img <- readPNG("./data/NM.png")
 grid.raster(NM.img, x = 0.38, y = 0.48, height = 0.1)
 
@@ -180,7 +184,7 @@ OE.img <- readPNG("./data/OE.png")
 grid.raster(OE.img, x = 0.61, y = 0.48, height = 0.1)
 
 # Load biofilm density curve
-
+setwd("~/GitHub/BiofilmTrait")
 kern.data <-read.csv(file = "./data/Biofilm_Spp.csv", head=TRUE, sep =",")
 kern <- density(kern.data$Biofilm) 
 
@@ -219,19 +223,21 @@ dev.off() # this writes plot to folder
 graphics.off() # shuts down open devices
 ```
 
-## FIGURE 2: SURVIVORSHIP 
+## FIG. 2: SURVIVORSHIP 
 ```{r}
 require(survival)
 require(extrafont)
+setwd("~/GitHub/BiofilmTrait")
 surv <- read.table("./data/Biofilm_Survivorship.txt",header=TRUE,sep="\t")
 biofsurv <- Surv(surv$Days,surv$Event)
-biofsurv.fit <- survfit(biofsurv ~ surv$Group, conf.int = TRUE, type = "kaplan-meier")
+biofsurv.fit <- survfit(biofsurv ~ surv$Group, conf.int = TRUE, 
+                type = "kaplan-meier")
 biofsurv.diff <- survdiff(Surv(surv$Days,surv$Event) ~ surv$Group, data = surv)
 ```
 
 Plotting
 ```{r}
-png(filename="/Users/lennonj/GitHub/BiofilmTrait/figures/Figure2.png",
+png(filename="~/GitHub/BiofilmTrait/figures/Figure2.png",
     width = 1200, height = 1200, res = 96*2)
 
 par(mar = c(5, 7, 5, 7))
@@ -262,11 +268,12 @@ dev.off() # this writes plot to folder
 graphics.off() # shuts down open devices
 ```
 
-## FIGURE 3: GROWTH RATES VS. WATER POTENTIAL
+## FIG. 3: GROWTH VS. WATER POTENTIAL
 
 Load data, peform multiple regressions, and calculate Psi stars
 ```{r}
 # Load data
+setwd("/Users/lennonj/GitHub/BiofilmTrait")
 growth <- read.table("./data/Biofilm_Growth.txt",header=TRUE,sep="\t")
 
 # Specify variables
@@ -343,8 +350,9 @@ clip(0.05,-1.6,-3.5,3)
 abline(a = OE.int, b = OE.slp, col = "black", lwd = 2.5, lty = 4)
 
 # Add legend
-legend(-1.2, 3.24, c("OE", "NM"), pch = 22, pt.bg = c("grey", "white"), pt.cex = 2, 
-       pt.lwd = 2, bty = 'n', y.intersp = 1, lty = c(6,4), lwd = 2.5)
+legend(-1.2, 3.24, c("OE", "NM"), pch = 22, pt.bg = c("grey", "white"), 
+       pt.cex = 2, pt.lwd = 2, bty = 'n', y.intersp = 1, lty = c(6,4), 
+       lwd = 2.5)
 
 # Add Psi star symbols to plot
 mtext(side = 1, line = -1, at = NM.star, bquote(psi~'*'[NM]), cex = 1.2)
@@ -357,11 +365,12 @@ dev.off() # this writes plot to folder
 graphics.off() # shuts down open devices
 ```
 
-## FIGURE 4: RESPIRATION VS. WATER POTENTIAL
+## FIG. 4: RESPIRATION VS. WATER POTENTIAL
 
 Load data and run MLE analyses for multiple model comparisons
 
 ```{r}
+setwd("~/GitHub/BiofilmTrait")
 resp.raw <- read.csv("./data/Biofilm_Respiration.csv", header = TRUE, sep =",")
 resp.trunc <- resp.raw[,1:3] # gets rid of trailing data
 resp.uneg <- resp.raw[,1]*-1 # convert MPa to positive values
@@ -376,8 +385,9 @@ B = 0.05 # Niche Breadth
 T = 1 # Tau, shape kernel
 Z = 7.5 # Error
 
-fit1 <- mle2(R ~ dnorm(mean = a, sd = z), start = list(a = A, z = Z),data = resp) 
-              # null
+fit1 <- mle2(R ~ dnorm(mean = a, sd = z), start = list(a = A, z = Z),
+             data = resp) 
+             # null
 
 fit2 <- mle2(R ~ dnorm(mean = a * exp(-((abs(W + x))/b)^t), sd = z),
              method = "L-BFGS-B", lower = c(x = 0.0000, b = 0.001), 
@@ -390,66 +400,78 @@ fit3 <- mle2(R ~ dnorm(mean = a * exp(-((abs(W + x))/b)^t), sd = z),
              parameters = c(a ~ Strain)) 
              # max differs between strains
 
-fit4 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), method = "L-BFGS-B",
-             lower = c(x = 0.0000, b = 0.001), start = list(a = A, x = X, b = B,
-             t = T, z = Z), data = resp, parameters = c(x ~ Strain)) 
+fit4 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), 
+             method = "L-BFGS-B",lower = c(x = 0.0000, b = 0.001), 
+             start = list(a = A, x = X, b = B,t = T, z = Z), 
+             data = resp, parameters = c(x ~ Strain)) 
              # opt water differs between strain 
 
-fit5 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), method = "L-BFGS-B",
-             lower = c(x = 0.0000, b = 0.001), start = list(a = A, x = X, b = B, 
-             t = T, z = Z), data = resp, parameters = c(b ~ Strain)) 
+fit5 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), 
+             method = "L-BFGS-B", lower = c(x = 0.0000, b = 0.001), 
+             start = list(a = A, x = X, b = B, t = T, z = Z), 
+             data = resp, parameters = c(b ~ Strain)) 
              # breadth differs between strains
 
-fit6 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), method = "L-BFGS-B",
-             lower = c(x = 0.0000, b = 0.001), start = list(a = A, x = X, b = B, 
-              t = T, z = Z), data = resp, parameters = c(t ~ Strain)) 
+fit6 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), 
+             method = "L-BFGS-B", lower = c(x = 0.0000, b = 0.001), 
+             start = list(a = A, x = X, b = B, t = T, z = Z), 
+             data = resp, parameters = c(t ~ Strain)) 
               # tau differs between strains
 
-fit7 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), method = "L-BFGS-B",
-             lower = c(x = 0.0000, b = 0.001), start = list(a = A, x = X, b = B,
-             t = T, z = Z), data = resp, parameters = c(a ~ Strain, x ~ Strain)) 
+fit7 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), 
+             method = "L-BFGS-B",lower = c(x = 0.0000, b = 0.001), 
+             start = list(a = A, x = X, b = B, t = T, z = Z), 
+             data = resp, parameters = c(a ~ Strain, x ~ Strain)) 
              # max and opt differ between strains
 
-fit8 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), method = "L-BFGS-B",
-             lower = c(x = 0.0000, b = 0.001), start = list(a = A, x = X, b = B,
-             t = T, z = Z), data = resp, parameters = c(a ~ Strain, b ~ Strain)) 
+fit8 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), 
+             method = "L-BFGS-B", lower = c(x = 0.0000, b = 0.001), 
+             start = list(a = A, x = X, b = B, t = T, z = Z), 
+             data = resp, parameters = c(a ~ Strain, b ~ Strain)) 
              # max and breadth differ between strains
 
-fit9 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), method = "L-BFGS-B",
-             lower = c(x = 0.0000, b = 0.001), start = list(a = A, x = X, b = B,
-             t = T, z = Z), data = resp, parameters = c(a ~ Strain, t ~ Strain)) 
+fit9 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), 
+             method = "L-BFGS-B", lower = c(x = 0.0000, b = 0.001), 
+             start = list(a = A, x = X, b = B, t = T, z = Z), 
+             data = resp, parameters = c(a ~ Strain, t ~ Strain)) 
              # max and tau differ between strains
 
-fit10 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), method = "L-BFGS-B", 
-              lower = c(x = 0.0000, b = 0.001), start = list(a = A, x = X, b = B, 
-              t = T, z = Z), data = resp, parameters = c(x ~ Strain, b ~ Strain)) 
+fit10 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), 
+              method = "L-BFGS-B", lower = c(x = 0.0000, b = 0.001), 
+              start = list(a = A, x = X, b = B, t = T, z = Z), 
+              data = resp, parameters = c(x ~ Strain, b ~ Strain)) 
               # opt and breadth differ between strains
 
-fit11 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), method = "L-BFGS-B",
-              lower = c(x = 0.0000, b = 0.001), start = list(a = A, x = X, b = B,
-              t = T, z = Z), data = resp, parameters = c(x ~ Strain, t ~ Strain)) 
+fit11 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), 
+              method = "L-BFGS-B", lower = c(x = 0.0000, b = 0.001), 
+              start = list(a = A, x = X, b = B, t = T, z = Z), 
+              data = resp, parameters = c(x ~ Strain, t ~ Strain)) 
               # opt and tau differ between strains
 
-fit12 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), method = "L-BFGS-B",
-              lower = c(x = 0.0000, b = 0.001), start = list(a = A, x = X, b = B,
-              t = T, z = Z), data = resp, parameters = c(b ~ Strain, t ~ Strain)) 
+fit12 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), 
+              method = "L-BFGS-B", lower = c(x = 0.0000, b = 0.001), 
+              start = list(a = A, x = X, b = B, t = T, z = Z), 
+              data = resp, parameters = c(b ~ Strain, t ~ Strain)) 
               # breadth and tau differ between strains
 
-fit13 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), method = "L-BFGS-B",
-              lower = c(x = 0.0000, b = 0.001), start = list(a = A, x = X, b = B, 
-              t = T, z = Z), data = resp, parameters = c(a ~ Strain, x ~ Strain, 
+fit13 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), 
+              method = "L-BFGS-B", lower = c(x = 0.0000, b = 0.001), 
+              start = list(a = A, x = X, b = B, t = T, z = Z), 
+              data = resp, parameters = c(a ~ Strain, x ~ Strain, 
               b ~ Strain)) 
               # max, opt, breadth differ between strains
 
-fit14 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), method = "L-BFGS-B",
-              lower = c(x = 0.0000, b = 0.001), start = list(a = A, x = X, b = B, 
-              t = T, z = Z), data = resp, parameters = c(a ~ Strain, x ~ Strain, 
+fit14 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z), 
+              method = "L-BFGS-B", lower = c(x = 0.0000, b = 0.001), 
+              start = list(a = A, x = X, b = B, t = T, z = Z), 
+              data = resp, parameters = c(a ~ Strain, x ~ Strain, 
               t ~ Strain)) 
               # max, opt, tau differ between strains
 
-fit15 <- mle2(R ~ dnorm(mean= a*exp(-((abs(W + x))/b)^t), sd = z), method = "L-BFGS-B",
-              lower = c(x = 0.0000, b = 0.001), start = list(a = A, x = X, b = B, 
-              t = T, z = Z), data = resp, parameters = c(a ~ Strain, b ~ Strain, 
+fit15 <- mle2(R ~ dnorm(mean= a*exp(-((abs(W + x))/b)^t), sd = z), 
+              method = "L-BFGS-B", lower = c(x = 0.0000, b = 0.001), 
+              start = list(a = A, x = X, b = B, t = T, z = Z), 
+              data = resp, parameters = c(a ~ Strain, b ~ Strain, 
               t ~ Strain)) 
               # max, breadth, tau differ between strains
 
@@ -468,11 +490,13 @@ fit17 <- mle2(R ~ dnorm(mean = a*exp(-((abs(W + x))/b)^t), sd = z),
               #all params differ between strains
 
 AIC.table <- AICtab(fit1, fit2, fit3, fit4, fit5, fit6, fit7, fit8, fit9, fit10,
-              fit11, fit12, fit13, fit14, fit15, fit16, fit17, delta = T, weights = T)
+              fit11, fit12, fit13, fit14, fit15, fit16, fit17, delta = T, 
+              weights = T)
 AIC.names <- attributes(AIC.table)$row.names
 AIC.table <- as.data.frame(do.call(cbind, c(AIC.table)))
 AIC.table$names <- AIC.names
-write.table(AIC.table, "~/GitHub/BiofilmTrait/figures/AIC.table.txt", sep = "\t") 
+write.table(AIC.table, "~/GitHub/BiofilmTrait/figures/AIC.table.txt", 
+            sep = "\t") 
 
 # Conclusion based on AIC is that the following models all perform equally
 # well (i.e., deltaAIC ~ < 2): fit10, fit 4, fit7, fit16, fit13, and fit11. 
@@ -483,7 +507,7 @@ NM.opt <- fit4@coef[2]
 OE.opt <- NM.opt + fit4@coef[3]
 ```
 
-# Calcuate niche breadth
+#Calcuate niche breadth
 Based on Lennon et al. (2012), we estimate niche breadth (`nb`) using the `b` parameter from the equation above. 
 
 ```{r}
@@ -499,7 +523,7 @@ OE.opt.e <- NM.opt.e + coef(summary(fit4))[3,2]
 OE.resp <- subset(resp[,2:3], resp[,4] == "OE", data = resp)
 NM.resp <- subset(resp[,2:3], resp[,4] == "NM", data = resp)
 
-png(filename="/Users/lennonj/GitHub/BiofilmTrait/figures/Figure4.png",
+png(filename="~/GitHub/BiofilmTrait/figures/Figure4.png",
     width = 1200, height = 1200, res = 96*2)
 
 plot.new()
@@ -553,10 +577,11 @@ dev.off()
 graphics.off()
 ```
 
-## FIGURE 5: REWETTING COLUMN EXPERIMENT
+## FIG. 5: REWETTING COLUMN EXPERIMENT
 
 # Read and arrange data
 ```{r}
+setwd("~/GitHub/BiofilmTrait")
 cols <- read.csv("./data/Biofilm_Columns.csv", header = TRUE, sep =",")
 head(cols)
 
@@ -573,7 +598,7 @@ colnames(NM.cols)[1:3] <- c("day", "NM.mean", "NM.sem")
 
 # Make main plot
 ```{r}
-png(filename="/Users/lennonj/GitHub/BiofilmTrait/figures/Figure5.png",
+png(filename="~/GitHub/BiofilmTrait/figures/Figure5.png",
     width = 1200, height = 800, res = 96*2)
 
 plot.new()
@@ -585,9 +610,7 @@ plot(OE.cols[,1], OE.cols[,2], xlim = c(0,100), ylim = c(-0.017, 0.001), type = 
      panel.first={
        arrows(x0 = OE.cols[,1], y0 = OE.cols[,2], y1 = OE.cols[, 2] - OE.cols[, 3],
               angle = 90, length = 0.05, lwd = 2)
-       arrows(x0 = OE.cols[,1], y0 = OE.cols[,2], y1 = OE.cols[, 2] + OE.cols[, 3], 
-              angle = 90,
-   length = 0.05, lwd = 2)
+       arrows(x0 = OE.cols[,1], y0 = OE.cols[,2], y1 = OE.cols[, 2] + OE.cols[, 3], angle = 90,length = 0.05, lwd = 2)
 })
 box(lwd=2)
 
@@ -633,6 +656,7 @@ graphics.off()
 # Test whether *Pseduomonas* densities are different at end of experiment
 ```{r}
 # Load data
+setwd("~/GitHub/BiofilmTrait")
 cols.cfu <- read.csv("./data/Biofilm_Columns_CFU.csv", head = TRUE, sep =",")
 
 # Covert CFU of extraction volume to g of soil
@@ -652,11 +676,12 @@ NM.cols.CFU <- CFU[which(CFU$Strain=="NM"),]
 SEM.NM.cols.CFU <- stderr(NM.cols.CFU$CFUadj)
 ```
 
-## FIGURE 6: SPECIES INTERACTIONS VIA TESTER STRAIN
+## FIG. 6: SPECIES INTERACTIONS
 
 # Read and arrange data
 ```{r}
 # Load data
+setwd("~/GitHub/BiofilmTrait")
 comp <- read.table("./data/Biofilm_Competition.txt", sep="\t", header=TRUE)
 head(comp)
 
@@ -713,7 +738,7 @@ with.NM <- KBS0701[which(KBS0701$Culture == "cocult_NM"),]
 with.OE <- KBS0701[which(KBS0701$Culture == "cocult_OE"),]
 
 # Main plot
-png(filename="/Users/lennonj/GitHub/BiofilmTrait/figures/Figure6.png",
+png(filename="~/GitHub/BiofilmTrait/figures/Figure6.png",
     width = 1200, height = 1200, res = 96*2)
 par(mar = c(7, 7, 5, 7))
 plot(jitter(solo$MPa, factor = 3), solo$rate, xlim = c(0.25, -1.85), 
