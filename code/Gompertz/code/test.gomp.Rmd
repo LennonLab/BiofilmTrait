@@ -1,0 +1,61 @@
+---
+title: "Biofilm Traits"
+author: "Jay T. Lennon"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+header-includes:
+   - \usepackage{array}
+output: pdf_document
+geometry: margin=2.54cm
+---
+
+# Setup Work Environment
+```{r}
+rm(list=ls())
+setwd("~/Desktop/GompTry/test")
+
+# Load Dependencies
+source("../bin/modified_Gomp.R")
+
+# Create Directory For Output
+dir.create("../output", showWarnings = FALSE)
+```
+
+# Load data
+```{r}
+# Load complete dataset
+g.data <- read.csv("../data/Biofilm_Gompertz.csv", sep = ",", header=TRUE)
+
+# Paremeter estimates were very sensitive to 38 hr observation. Led to
+# unrealistic values. So, we removed this time point from the following analysis. 
+
+g.data <- g.data[! g.data$Time. == "38",]
+write.table(g.data, "~/Desktop/GompTry/data/g.data.red.txt", sep="\t")
+```
+
+# Run the modified Gompertz analysis
+```{r}
+growth.modGomp("../data/../data/Biofilm_Gompertz_red.csv", "Gomp.Parms", 
+               intercept.guess = 0.001, synergy = F, temp = F, smooth = F)
+```
+
+# Evaluate growth parameters for OE and NM
+```{r}
+g.traits <- read.table("../output/Gomp.Parms.txt", sep=",", header=TRUE)
+strain <- ifelse(grepl("NM", g.traits[,1]), "NM", "OE")
+sem <- function(x) sqrt(var(x)/length(x))
+
+# Final productivity (A)
+A.means <- tapply(g.traits$A, strain, mean)
+A.sem <- tapply(g.traits$A, strain, sem)
+A.t.test <- t.test(g.traits$A ~ strain)
+
+# Maximum growth rate (umax)
+umax.means <- tapply(g.traits$umax, strain, mean)
+umax.sem <- tapply(g.traits$umax, strain, sem)
+umax.t.test <- t.test(g.traits$umax ~ strain)
+
+# Lag time (L)
+lag.means <- tapply(g.traits$L, strain, mean)
+lag.sem <- tapply(g.traits$L, strain, sem)
+lag.t.test <- t.test(g.traits$L ~ strain)
+```

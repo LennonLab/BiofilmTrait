@@ -83,6 +83,7 @@ rcorr(traits$lag_time,traits$biofilm, type = "spearman")
 ## GROWTH RATES UNDER LAB CONDITIONS
 
 Read OD600 data from cultures to cacluate Malthusian growth rates
+Estimation of growth curve parameters from using the modified Gompertz equation can be found in the /code/Gompertz folder of the BiofilmTrait respository
 ```{r}
 setwd("~/GitHub/BiofilmTrait")
 malth <- read.csv("data/Biofilm_Malthusian.csv",sep = ",", header=TRUE)
