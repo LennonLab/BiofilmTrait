@@ -1,0 +1,34 @@
+---
+title: "Biofilm Traits"
+author: "Jay T. Lennon"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+header-includes:
+   - \usepackage{array}
+output: pdf_document
+geometry: margin=2.54cm
+---
+
+Lennon Lab Growth Curve Analysis - Parameter Estimate Code, Written by Mario Muscarella. Last update 02/27/2015 by M. Muscarella & V. Kuo                                                                                                                             
+
+# Setup Work Environment
+```{r}
+rm(list=ls())
+setwd("~/GitHub/BiofilmTrait/code/Gompertz/bin")
+```
+
+# Load Dependencies
+```{r}
+source("modified_Gomp.R")
+```
+
+# Create Directory For Output
+```{r}
+dir.create("../../../data/Gompertz.output", showWarnings = FALSE)
+```
+
+# Run Gompertz File
+```{r}
+growth.modGomp("~/GitHub/BiofilmTrait/data/Biofilm_Gompertz.csv", 
+               "~/GitHub/BiofilmTrait/data/csv.test", synergy = F, temp = F, smooth = F)
+
+```
